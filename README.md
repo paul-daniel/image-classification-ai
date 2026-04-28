@@ -2,7 +2,7 @@
 
 This project is an end-to-end AI pipeline that converts customer complaint audio into actionable insights. It automatically transcribes voice complaints, generates visual representations to aid understanding, analyzes and annotates images for critical details, and classifies complaints into categories and subcategories to speed up support resolution.
 
-![Project Overview](docs/overview.png)
+![Project Overview](docs/overview.jpeg)
 
 Pipeline stages:
 
@@ -15,7 +15,7 @@ Pipeline stages:
 Quick start
 -----------
 
-1. Place the project overview image at `docs/overview.png` (this repository includes an overview diagram to illustrate the pipeline).
+1. Place the project overview image at `docs/overview.jpeg` (this repository includes an overview diagram to illustrate the pipeline).
 2. Run the main pipeline (example):
 
 ```bash
