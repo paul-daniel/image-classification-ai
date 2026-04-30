@@ -1,3 +1,5 @@
+"""Language-model tasks: prompt engineering and complaint classification."""
+
 from __future__ import annotations
 
 import asyncio
@@ -29,6 +31,7 @@ except ImportError:  # pragma: no cover
 
 
 def generate_image_prompt(transcript: str) -> str:
+    """Generate a focused image prompt from complaint text."""
     if not transcript.strip():
         raise ValueError("Transcript cannot be empty.")
 
@@ -54,6 +57,7 @@ def classify_with_gpt(
     image_summary: str,
     categories_catalog: dict[str, Any],
 ) -> dict[str, Any]:
+    """Classify complaint category, subcategory, and severity."""
     config = load_pipeline_config().conversation
     client = build_azure_openai_client(config)
 
@@ -72,6 +76,7 @@ def classify_with_gpt(
         ],
     )
 
+    # Models can occasionally prepend text; extract_json handles that safely.
     content = response.choices[0].message.content or "{}"
     payload = extract_json(content)
     if not isinstance(payload, dict):
@@ -86,6 +91,7 @@ def classify_with_gpt(
 
 
 def load_categories(categories_path: str | Path) -> dict[str, Any]:
+    """Load classification catalog metadata from JSON."""
     path = Path(categories_path)
     if not path.exists():
         raise FileNotFoundError(f"Categories file not found: {path}")
@@ -96,6 +102,7 @@ def load_categories(categories_path: str | Path) -> dict[str, Any]:
 
 
 async def generate_image_prompt_async(transcript: str) -> str:
+    """Async wrapper around generate_image_prompt."""
     return await asyncio.to_thread(generate_image_prompt, transcript)
 
 
@@ -104,6 +111,7 @@ async def classify_with_gpt_async(
     image_summary: str,
     categories_catalog: dict[str, Any],
 ) -> dict[str, Any]:
+    """Async wrapper around classify_with_gpt."""
     return await asyncio.to_thread(
         classify_with_gpt,
         transcript,

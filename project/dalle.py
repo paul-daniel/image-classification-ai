@@ -1,3 +1,5 @@
+"""Image-generation helpers for complaint visualization."""
+
 from __future__ import annotations
 
 import asyncio
@@ -21,6 +23,7 @@ def generate_image(
     quality: str = "medium",
     n: int = 1,
 ) -> Path:
+    """Generate and persist a complaint image from a prompt."""
     if not prompt.strip():
         raise ValueError("Image prompt cannot be empty.")
 
@@ -47,6 +50,7 @@ async def generate_image_async(
     quality: str = "medium",
     n: int = 1,
 ) -> Path:
+    """Async wrapper around generate_image."""
     return await asyncio.to_thread(
         generate_image,
         prompt,

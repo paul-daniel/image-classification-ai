@@ -1,3 +1,5 @@
+"""Lightweight console formatting and timed step tracking."""
+
 from __future__ import annotations
 
 import asyncio
@@ -49,6 +51,7 @@ async def run_step(
     task: Awaitable[Any],
     timeout_seconds: int,
 ) -> Any:
+    """Run one async step with timeout and standard console events."""
     info(complaint_id, f"{step_name} started")
     started = time.perf_counter()
     try:
@@ -65,6 +68,7 @@ async def run_step(
 
 
 def show_prompt(complaint_id: str, prompt: str, max_chars: int = 220) -> None:
+    """Print a trimmed prompt preview for traceability."""
     snippet = prompt.strip().replace("\n", " ")
     if len(snippet) > max_chars:
         snippet = snippet[: max_chars - 3] + "..."
@@ -75,6 +79,7 @@ def show_prompt(complaint_id: str, prompt: str, max_chars: int = 220) -> None:
 
 
 def show_artifact(complaint_id: str, label: str, path: str | Path) -> None:
+    """Print a generated artifact path."""
     path_text = str(path)
     print(
         f"[{complaint_id}] {_color(label + ':', _BLUE)} {_color(path_text, _CYAN)}",
@@ -83,6 +88,7 @@ def show_artifact(complaint_id: str, label: str, path: str | Path) -> None:
 
 
 def show_result(complaint_id: str, classification: dict[str, Any]) -> None:
+    """Print a compact, human-readable classification summary."""
     category = str(classification.get("category", "Unknown"))
     subcategory = str(classification.get("subcategory", "Unknown"))
     severity = str(classification.get("severity", "medium"))

@@ -1,3 +1,5 @@
+"""File and serialization helpers used across pipeline modules."""
+
 from __future__ import annotations
 
 import base64
@@ -13,24 +15,29 @@ TEXT_EXTENSIONS = {".txt"}
 
 
 def ensure_dir(path: Path) -> None:
+    """Create directory tree if it does not already exist."""
     path.mkdir(parents=True, exist_ok=True)
 
 
 def write_text(path: Path, content: str) -> None:
+    """Write UTF-8 text content to a file path."""
     ensure_dir(path.parent)
     path.write_text(content, encoding="utf-8")
 
 
 def write_json(path: Path, payload: dict[str, Any] | list[Any]) -> None:
+    """Serialize payload to pretty-printed JSON."""
     ensure_dir(path.parent)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def read_json(path: Path) -> Any:
+    """Read and deserialize JSON from disk."""
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def image_file_to_data_url(path: Path) -> str:
+    """Encode a local image file as a data URL for multimodal requests."""
     mime = "image/png"
     suffix = path.suffix.lower()
     if suffix in {".jpg", ".jpeg"}:
@@ -42,6 +49,7 @@ def image_file_to_data_url(path: Path) -> str:
 
 
 def save_generated_image(result: Any, destination: Path, timeout: int = 30) -> Path:
+    """Persist generated image bytes from base64 or URL API response."""
     ensure_dir(destination.parent)
 
     payload = result.model_dump() if hasattr(result, "model_dump") else result
@@ -67,6 +75,7 @@ def save_generated_image(result: Any, destination: Path, timeout: int = 30) -> P
 
 
 def list_audio_files(audio_dir: Path) -> list[Path]:
+    """List supported audio files in one directory (non-recursive)."""
     if not audio_dir.exists():
         return []
 
@@ -75,6 +84,7 @@ def list_audio_files(audio_dir: Path) -> list[Path]:
 
 
 def list_text_files(text_dir: Path) -> list[Path]:
+    """List supported text complaint files in one directory (non-recursive)."""
     if not text_dir.exists():
         return []
 
@@ -83,6 +93,7 @@ def list_text_files(text_dir: Path) -> list[Path]:
 
 
 def slugify_filename(value: str) -> str:
+    """Create a simple lowercase slug suitable for folder/file naming."""
     clean = []
     for ch in value.lower():
         if ch.isalnum():

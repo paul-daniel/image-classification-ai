@@ -1,3 +1,5 @@
+"""Vision analysis and image annotation utilities."""
+
 from __future__ import annotations
 
 import asyncio
@@ -21,6 +23,7 @@ except ImportError:  # pragma: no cover
 
 
 def describe_image(image_path: str | Path) -> dict[str, Any]:
+    """Analyze an image and return structured defect metadata."""
     path = Path(image_path)
     if not path.exists():
         raise FileNotFoundError(f"Image file not found: {path}")
@@ -54,6 +57,7 @@ def annotate_image(
     defects: list[dict[str, Any]],
     output_path: str | Path,
 ) -> Path:
+    """Draw defect bounding boxes and labels on an image."""
     src = Path(image_path)
     dst = Path(output_path)
 
@@ -81,6 +85,7 @@ def annotate_image(
             if not isinstance(bbox, list) or len(bbox) != 4:
                 continue
 
+            # Convert normalized bbox coordinates into pixel coordinates.
             x, y, w, h = bbox
             left = max(0, min(width - 1, int(float(x) * width)))
             top = max(0, min(height - 1, int(float(y) * height)))
@@ -123,6 +128,7 @@ def analyze_and_annotate_image(
     annotation_output_path: str | Path,
     defects_json_path: str | Path,
 ) -> dict[str, Any]:
+    """Run vision analysis and persist JSON, summary text, and annotation image."""
     analysis = describe_image(image_path)
     defects = analysis.get("defects", [])
 
@@ -137,6 +143,7 @@ def analyze_and_annotate_image(
 
 
 async def describe_image_async(image_path: str | Path) -> dict[str, Any]:
+    """Async wrapper around describe_image."""
     return await asyncio.to_thread(describe_image, image_path)
 
 
@@ -147,6 +154,7 @@ async def analyze_and_annotate_image_async(
     annotation_output_path: str | Path,
     defects_json_path: str | Path,
 ) -> dict[str, Any]:
+    """Async wrapper around analyze_and_annotate_image."""
     return await asyncio.to_thread(
         analyze_and_annotate_image,
         image_path,

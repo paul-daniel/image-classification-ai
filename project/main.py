@@ -1,3 +1,9 @@
+"""Main orchestrator for complaint processing.
+
+This module coordinates transcription/text intake, prompt generation, image
+generation, vision analysis, annotation, and final classification.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -27,6 +33,7 @@ except ImportError:  # pragma: no cover
 
 
 def _create_placeholder_image(path: Path) -> None:
+    """Create a deterministic placeholder image used in dry-run mode."""
     path.parent.mkdir(parents=True, exist_ok=True)
     image = Image.new("RGB", (1024, 1024), color=(245, 245, 245))
     draw = ImageDraw.Draw(image)
@@ -36,6 +43,7 @@ def _create_placeholder_image(path: Path) -> None:
 
 
 def _safe_stem(path: Path) -> str:
+    """Return a filesystem-safe identifier derived from a filename stem."""
     clean = "".join(ch if ch.isalnum() else "-" for ch in path.stem.lower())
     while "--" in clean:
         clean = clean.replace("--", "-")
@@ -43,6 +51,7 @@ def _safe_stem(path: Path) -> str:
 
 
 def _signal_id_from_text(text: str) -> str:
+    """Build a stable output folder id from the first words of text input."""
     words = text.strip().split()
     snippet = " ".join(words[:14])
     slug = slugify_filename(snippet)[:80].strip("-")
@@ -50,6 +59,7 @@ def _signal_id_from_text(text: str) -> str:
 
 
 def _read_text_file(path: Path) -> str:
+    """Read and validate a plain-text complaint file."""
     if not path.exists():
         raise FileNotFoundError(f"Text complaint file not found: {path}")
 
@@ -58,6 +68,135 @@ def _read_text_file(path: Path) -> str:
         raise ValueError(f"Text complaint file is empty: {path}")
 
     return content
+
+
+def _validate_args(args: argparse.Namespace) -> None:
+    """Validate CLI combinations to keep execution mode unambiguous."""
+    if args.concurrency < 1:
+        raise ValueError("--concurrency must be at least 1.")
+    if args.step_timeout < 1:
+        raise ValueError("--step-timeout must be at least 1 second.")
+
+    single_input_flags = [bool(args.audio), bool(args.text), bool(args.text_file)]
+    if sum(single_input_flags) > 1:
+        raise ValueError("Use only one of --audio, --text, or --text-file at a time.")
+
+    if any(single_input_flags) and (args.audio_dir or args.text_dir):
+        raise ValueError(
+            "Do not combine single-input flags (--audio/--text/--text-file) "
+            "with batch flags (--audio-dir/--text-dir)."
+        )
+
+
+async def _run_dry_pipeline(
+    *,
+    complaint_id: str,
+    prompt_file: Path,
+    image_file: Path,
+    image_description_file: Path,
+    defects_file: Path,
+    annotated_file: Path,
+) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    """Generate deterministic placeholder artifacts for dry-run mode."""
+    image_prompt = (
+        "A realistic product defect scene in an e-commerce context, with clear focus on the issue."
+    )
+    write_text(prompt_file, image_prompt + "\n")
+    show_prompt(complaint_id, image_prompt)
+
+    info(complaint_id, "Image generation skipped in dry-run")
+    _create_placeholder_image(image_file)
+    show_artifact(complaint_id, "Image", image_file)
+
+    analysis: dict[str, Any] = {
+        "summary": "A damaged parcel with visible denting on the product box.",
+        "scene_details": [
+            "Cardboard package on doorstep",
+            "Visible crush marks on one side",
+        ],
+        "defects": [
+            {
+                "label": "package damage",
+                "confidence": 0.88,
+                "bbox": [0.22, 0.27, 0.58, 0.47],
+                "evidence": "Visible dent and crease lines",
+            }
+        ],
+    }
+    write_json(defects_file, analysis)
+    write_text(image_description_file, analysis["summary"] + "\n")
+
+    _create_placeholder_image(annotated_file)
+    show_artifact(complaint_id, "Annotated image", annotated_file)
+
+    classification: dict[str, Any] = {
+        "category": "Logistics",
+        "subcategory": "Damaged Delivery",
+        "severity": "high",
+        "confidence": 0.8,
+        "rationale": "Visible damage likely affects usability and customer trust.",
+    }
+    info(complaint_id, "Vision analysis and classification skipped in dry-run")
+
+    return image_prompt, analysis, classification
+
+
+async def _run_real_pipeline(
+    *,
+    complaint_id: str,
+    transcript: str,
+    categories: dict[str, Any],
+    image_quality: str,
+    step_timeout: int,
+    prompt_file: Path,
+    image_file: Path,
+    image_description_file: Path,
+    defects_file: Path,
+    annotated_file: Path,
+) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    """Execute model-backed prompt, image, vision, and classification stages."""
+    image_prompt = await run_step(
+        complaint_id=complaint_id,
+        step_name="Prompt generation",
+        task=generate_image_prompt_async(transcript),
+        timeout_seconds=step_timeout,
+    )
+    write_text(prompt_file, image_prompt + "\n")
+    show_prompt(complaint_id, image_prompt)
+
+    await run_step(
+        complaint_id=complaint_id,
+        step_name="Image generation",
+        task=generate_image_async(image_prompt, image_file, quality=image_quality),
+        timeout_seconds=step_timeout,
+    )
+    show_artifact(complaint_id, "Image", image_file)
+
+    analysis = await run_step(
+        complaint_id=complaint_id,
+        step_name="Vision analysis + annotation",
+        task=analyze_and_annotate_image_async(
+            image_file,
+            description_path=image_description_file,
+            annotation_output_path=annotated_file,
+            defects_json_path=defects_file,
+        ),
+        timeout_seconds=step_timeout,
+    )
+    show_artifact(complaint_id, "Annotated image", annotated_file)
+
+    classification = await run_step(
+        complaint_id=complaint_id,
+        step_name="Complaint classification",
+        task=classify_with_gpt_async(
+            transcript,
+            str(analysis.get("summary", "")),
+            categories,
+        ),
+        timeout_seconds=step_timeout,
+    )
+
+    return image_prompt, analysis, classification
 
 
 async def process_complaint(
@@ -72,9 +211,11 @@ async def process_complaint(
     step_timeout: int = 120,
     dry_run: bool = False,
 ) -> dict[str, Any]:
+    """Process one complaint and persist all rubric-required artifacts."""
     output_dir = output_root / complaint_id
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Standard output contract for downstream review and submission checks.
     transcription_file = output_dir / "transcription.txt"
     prompt_file = output_dir / "prompt.txt"
     image_file = output_dir / "generated_image.png"
@@ -86,6 +227,9 @@ async def process_complaint(
 
     if audio_path:
         source_audio = Path(audio_path)
+        if not source_audio.exists():
+            raise FileNotFoundError(f"Audio file not found: {source_audio}")
+
         copied_audio_file = output_dir / source_audio.name
         if source_audio.resolve() != copied_audio_file.resolve():
             shutil.copy2(source_audio, copied_audio_file)
@@ -107,83 +251,26 @@ async def process_complaint(
     write_text(transcription_file, transcript + "\n")
 
     if dry_run:
-        image_prompt = (
-            "A realistic product defect scene in an e-commerce context, with clear focus on the issue."
+        _, _, classification = await _run_dry_pipeline(
+            complaint_id=complaint_id,
+            prompt_file=prompt_file,
+            image_file=image_file,
+            image_description_file=image_description_file,
+            defects_file=defects_file,
+            annotated_file=annotated_file,
         )
-        info(complaint_id, "Prompt generation skipped in dry-run")
     else:
-        image_prompt = await run_step(
+        _, _, classification = await _run_real_pipeline(
             complaint_id=complaint_id,
-            step_name="Prompt generation",
-            task=generate_image_prompt_async(transcript),
-            timeout_seconds=step_timeout,
-        )
-
-    write_text(prompt_file, image_prompt + "\n")
-    show_prompt(complaint_id, image_prompt)
-
-    if dry_run:
-        info(complaint_id, "Image generation skipped in dry-run")
-        _create_placeholder_image(image_file)
-        show_artifact(complaint_id, "Image", image_file)
-        analysis = {
-            "summary": "A damaged parcel with visible denting on the product box.",
-            "scene_details": [
-                "Cardboard package on doorstep",
-                "Visible crush marks on one side",
-            ],
-            "defects": [
-                {
-                    "label": "package damage",
-                    "confidence": 0.88,
-                    "bbox": [0.22, 0.27, 0.58, 0.47],
-                    "evidence": "Visible dent and crease lines",
-                }
-            ],
-        }
-        write_json(defects_file, analysis)
-        write_text(image_description_file, analysis["summary"] + "\n")
-        _create_placeholder_image(annotated_file)
-        show_artifact(complaint_id, "Annotated image", annotated_file)
-        classification = {
-            "category": "Logistics",
-            "subcategory": "Damaged Delivery",
-            "severity": "high",
-            "confidence": 0.8,
-            "rationale": "Visible damage likely affects usability and customer trust.",
-        }
-        info(complaint_id, "Vision analysis and classification skipped in dry-run")
-    else:
-        await run_step(
-            complaint_id=complaint_id,
-            step_name="Image generation",
-            task=generate_image_async(image_prompt, image_file, quality=image_quality),
-            timeout_seconds=step_timeout,
-        )
-        show_artifact(complaint_id, "Image", image_file)
-
-        analysis = await run_step(
-            complaint_id=complaint_id,
-            step_name="Vision analysis + annotation",
-            task=analyze_and_annotate_image_async(
-                image_file,
-                description_path=image_description_file,
-                annotation_output_path=annotated_file,
-                defects_json_path=defects_file,
-            ),
-            timeout_seconds=step_timeout,
-        )
-        show_artifact(complaint_id, "Annotated image", annotated_file)
-
-        classification = await run_step(
-            complaint_id=complaint_id,
-            step_name="Complaint classification",
-            task=classify_with_gpt_async(
-                transcript,
-                str(analysis.get("summary", "")),
-                categories,
-            ),
-            timeout_seconds=step_timeout,
+            transcript=transcript,
+            categories=categories,
+            image_quality=image_quality,
+            step_timeout=step_timeout,
+            prompt_file=prompt_file,
+            image_file=image_file,
+            image_description_file=image_description_file,
+            defects_file=defects_file,
+            annotated_file=annotated_file,
         )
 
     write_json(classification_json_file, classification)
@@ -209,6 +296,7 @@ async def process_complaint(
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create CLI parser for single and batch complaint processing."""
     parser = argparse.ArgumentParser(description="Customer complaint classification pipeline")
     parser.add_argument("--audio", type=str, default=None, help="Path to one complaint audio file")
     parser.add_argument("--text", type=str, default=None, help="Raw complaint text input")
@@ -246,6 +334,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 async def run(args: argparse.Namespace) -> None:
+    """Execute pipeline based on validated CLI arguments."""
+    _validate_args(args)
+
     output_root = Path(args.output_dir)
     output_root.mkdir(parents=True, exist_ok=True)
 
@@ -341,6 +432,7 @@ async def run(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    """CLI entrypoint."""
     parser = build_parser()
     args = parser.parse_args()
     asyncio.run(run(args))

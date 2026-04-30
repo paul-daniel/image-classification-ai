@@ -1,3 +1,5 @@
+"""Speech-to-text helpers for complaint audio intake."""
+
 from __future__ import annotations
 
 import asyncio
@@ -12,6 +14,7 @@ except ImportError:  # pragma: no cover
 
 
 def transcribe_audio(audio_path: str | Path, *, language: str = "en") -> str:
+    """Transcribe one audio file and return plain text."""
     path = Path(audio_path)
     if not path.exists():
         raise FileNotFoundError(f"Audio file not found: {path}")
@@ -34,6 +37,7 @@ def transcribe_audio(audio_path: str | Path, *, language: str = "en") -> str:
 
 
 async def transcribe_audio_async(audio_path: str | Path, *, language: str = "en") -> str:
+    """Async wrapper around transcribe_audio."""
     return await asyncio.to_thread(transcribe_audio, audio_path, language=language)
 
 
