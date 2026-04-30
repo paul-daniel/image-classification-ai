@@ -1,0 +1,5 @@
+Category: Repair
+Subcategory: Functional Failure
+Severity: high
+Confidence: 0.9
+Rationale: Newly purchased laptop shows a largely black screen with a localized bright white blotch rendering the display unusable. No external damage reported, indicating an internal display failure that requires repair or replacement and significantly impacts device functionality.

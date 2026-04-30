@@ -1,0 +1,17 @@
+{
+  "summary": "Laptop with a localized bright white blotch on the lower-left of the display; rest of screen dark and intact.",
+  "scene_details": "A closed-bezel laptop is open on a desk. The screen is otherwise black but shows a concentrated irregular bright white/blueish patch near the lower-left quadrant of the display area. Keyboard and bezels appear normal; defect is on the LCD panel near the inner left edge.",
+  "defects": [
+    {
+      "label": "bright white spot (screen damage/backlight bleed)",
+      "confidence": 0.92,
+      "bbox": [
+        0.06,
+        0.58,
+        0.17,
+        0.25
+      ],
+      "evidence": "Irregular, high-intensity white/blue patch on the lower-left of the display against an otherwise black screen; visible halo and pixelated edges indicating localized panel/backlight defect."
+    }
+  ]
+}

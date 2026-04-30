@@ -2,11 +2,11 @@
   "processed": 1,
   "results": [
     {
-      "complaint_id": "complaint2",
-      "output_dir": "/Users/pauldaniel/Documents/image classification project/project/output/complaint2",
-      "category": "Billing",
-      "subcategory": "Refund Delay",
-      "severity": "medium"
+      "complaint_id": "laptop-complaint",
+      "output_dir": "/Users/pauldaniel/Documents/image classification project/project/output/laptop-complaint",
+      "category": "Repair",
+      "subcategory": "Functional Failure",
+      "severity": "high"
     }
   ]
 }

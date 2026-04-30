@@ -126,6 +126,7 @@ For each complaint, outputs are written under signal-based folders:
 - `annotated_image.png`
 - `classification.json`
 - `classification.txt`
+- `<original-audio-file>` (copied for audio-driven complaints)
 
 A run-level summary is saved as `project/output/run_summary.json`.
 

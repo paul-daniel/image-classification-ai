@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -82,6 +83,13 @@ async def process_complaint(
     annotated_file = output_dir / "annotated_image.png"
     classification_json_file = output_dir / "classification.json"
     classification_text_file = output_dir / "classification.txt"
+
+    if audio_path:
+        source_audio = Path(audio_path)
+        copied_audio_file = output_dir / source_audio.name
+        if source_audio.resolve() != copied_audio_file.resolve():
+            shutil.copy2(source_audio, copied_audio_file)
+        show_artifact(complaint_id, "Input audio", copied_audio_file)
 
     if text and text.strip():
         transcript = text.strip()
