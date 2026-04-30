@@ -1,0 +1,28 @@
+{
+  "summary": "Over-ear headphone with a broken headband hinge exposing frayed internal copper wire and visible cracked plastic at the joint.",
+  "scene_details": "Left side of an over-ear headphone headband and earcup. The plastic hinge/arm at the headband joint is split and jagged; an insulated cable has been severed with copper strands exposed and splayed outward near the break.",
+  "defects": [
+    {
+      "label": "exposed frayed internal wire",
+      "confidence": 0.95,
+      "bbox": [
+        0.57,
+        0.4,
+        0.1,
+        0.12
+      ],
+      "evidence": "Black insulated cable with torn outer sheath and multiple copper strands splayed and visible; bright copper color and frayed ends clearly protrude from the headband break."
+    },
+    {
+      "label": "cracked/broken plastic hinge",
+      "confidence": 0.9,
+      "bbox": [
+        0.4,
+        0.28,
+        0.18,
+        0.46
+      ],
+      "evidence": "Jagged split and separation in the matte black plastic at the headband hinge; visible gaps and torn edges surrounding the exposed cable where the housing has fractured."
+    }
+  ]
+}

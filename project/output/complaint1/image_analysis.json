@@ -1,0 +1,39 @@
+{
+  "summary": "Stainless steel electric kettle on a countertop with three visible defects: a charred/burned area at the lower metal base, a small dent on the right side of the body, and a crack in the plastic handle near the base.",
+  "scene_details": "Silver stainless-steel kettle with black plastic handle placed on a light countertop. A cardboard box and packing foam are visible in the background. The burnt/melted damage is concentrated on the lower metal trim near the front, a distinct dent is visible on the right side of the kettle body, and a vertical crack is present at the lower part of the left handle where it meets the base.",
+  "defects": [
+    {
+      "label": "burnt/melted base",
+      "confidence": 0.95,
+      "bbox": [
+        0.32,
+        0.78,
+        0.26,
+        0.12
+      ],
+      "evidence": "Dark charred and melted residue concentrated on the lower metal trim at the front of the kettle, with blackened and bubbled material clearly visible."
+    },
+    {
+      "label": "dent in body",
+      "confidence": 0.88,
+      "bbox": [
+        0.7,
+        0.36,
+        0.08,
+        0.1
+      ],
+      "evidence": "Small rounded indentation on the right stainless-steel side of the kettle, causing a visible distortion in the metal surface and reflected light."
+    },
+    {
+      "label": "cracked plastic handle",
+      "confidence": 0.9,
+      "bbox": [
+        0.12,
+        0.6,
+        0.14,
+        0.2
+      ],
+      "evidence": "Vertical crack at the lower portion of the black plastic handle where it joins the kettle base; the fracture line and separation are visible."
+    }
+  ]
+}

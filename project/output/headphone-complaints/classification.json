@@ -1,0 +1,7 @@
+{
+  "category": "Repair",
+  "subcategory": "Damaged Product",
+  "severity": "high",
+  "confidence": 0.89,
+  "rationale": "Customer reports left channel not working; image shows broken headband hinge, cracked plastic, and frayed internal copper wire\u2014clear physical damage causing functional failure. Major impact on use and likely requires repair or replacement; assessment is confident due to matching transcript and photos."
+}

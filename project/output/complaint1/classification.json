@@ -1,0 +1,7 @@
+{
+  "category": "Repair",
+  "subcategory": "Functional Failure",
+  "severity": "critical",
+  "confidence": 0.92,
+  "rationale": "The appliance exhibited electrical failure (shut off after seconds) with a burnt-plastic smell and a visible charred area, plus structural damage (cracked handle, dent). These indicate a safety/fire risk and unsafe product that requires urgent replacement."
+}

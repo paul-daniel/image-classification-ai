@@ -1,0 +1,66 @@
+{
+	"schema_version": "1.0",
+	"categories": [
+		{
+			"name": "Repair",
+			"description": "Product defects requiring fix, replacement, or technical intervention.",
+			"subcategories": [
+				"Damaged Product",
+				"Manufacturing Defect",
+				"Missing Parts",
+				"Functional Failure",
+				"Cosmetic Defect"
+			]
+		},
+		{
+			"name": "Logistics",
+			"description": "Issues from packaging, delivery, and shipping process.",
+			"subcategories": [
+				"Damaged Delivery",
+				"Late Delivery",
+				"Wrong Item Delivered",
+				"Lost Package",
+				"Packaging Quality"
+			]
+		},
+		{
+			"name": "Security",
+			"description": "Account safety, fraud, and unauthorized access concerns.",
+			"subcategories": [
+				"Account Takeover",
+				"Fraudulent Transaction",
+				"Suspicious Activity",
+				"Data Privacy Concern",
+				"Verification Issue"
+			]
+		},
+		{
+			"name": "Billing",
+			"description": "Payment and refund concerns.",
+			"subcategories": [
+				"Double Charge",
+				"Refund Delay",
+				"Incorrect Amount",
+				"Payment Failed",
+				"Invoice Mismatch"
+			]
+		},
+		{
+			"name": "Marketing",
+			"description": "Expectation mismatch between product listing and received item.",
+			"subcategories": [
+				"Misleading Description",
+				"Image Mismatch",
+				"Promotion Not Applied",
+				"Coupon Issue",
+				"Unavailable Advertised Item"
+			]
+		}
+	],
+	"severity_guidance": {
+		"low": "Minor inconvenience; workaround available; no immediate risk.",
+		"medium": "Partial impact on product use or customer trust.",
+		"high": "Major impact on use, value, or repeat purchase likelihood.",
+		"critical": "Safety, security, fraud, or severe financial impact requiring urgent action."
+	}
+}

@@ -1,0 +1,7 @@
+{
+  "category": "Repair",
+  "subcategory": "Missing Parts",
+  "severity": "high",
+  "confidence": 0.87,
+  "rationale": "Customer reports promised straps are missing (prevents wearing the watch) and image analysis confirms screen scratches (long horizontal and short diagonal). Primary issue chosen as Missing Parts because the absent straps are essential to product use; the scratched screen adds significant cosmetic damage and reduces value, so overall impact is major."
+}

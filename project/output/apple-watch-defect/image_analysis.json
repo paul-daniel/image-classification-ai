@@ -1,0 +1,28 @@
+{
+  "summary": "Stainless-steel smartwatch seated in white molded packaging with two visible scratches on the display glass: a long horizontal scratch across the middle and a shorter diagonal scratch on the upper-right quadrant of the screen.",
+  "scene_details": "A silver smartwatch (metal band) is centered in a white foam/ cardboard tray. The watch face is off/black, making light surface scratches easily visible. The long scratch runs horizontally near the center of the display; a second, shorter diagonal scratch is visible toward the upper-right area of the display. No other damage is apparent on the bezel or packaging.",
+  "defects": [
+    {
+      "label": "horizontal scratch on screen",
+      "confidence": 0.95,
+      "bbox": [
+        0.345,
+        0.475,
+        0.31,
+        0.03
+      ],
+      "evidence": "Thin, bright line crossing the display horizontally across the screen center, clearly visible against the black display surface."
+    },
+    {
+      "label": "diagonal scratch on screen",
+      "confidence": 0.9,
+      "bbox": [
+        0.58,
+        0.3,
+        0.1,
+        0.12
+      ],
+      "evidence": "Short, angled scratch in the upper-right quadrant of the display, visible as a lighter line against the dark screen."
+    }
+  ]
+}
