@@ -150,7 +150,3 @@ A run-level summary is saved as `project/output/run_summary.json`.
 - `project/dalle.py`: `generate_image()` + async wrapper
 - `project/vision.py`: `describe_image()`, `annotate_image()`, `analyze_and_annotate_image()`
 - `project/gpt.py`: `generate_image_prompt()`, `classify_with_gpt()`, `load_categories()`
-
-## Important Security Note
-
-If API keys were ever committed or shared, rotate them immediately and avoid storing real credentials in version control.
