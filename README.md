@@ -2,6 +2,8 @@
 
 End-to-end AI workflow for processing customer complaints from audio or text into structured support insights.
 
+Quick product walkthrough: [SHOWCASE.md](SHOWCASE.md)
+
 ![Project Overview](docs/project-overview.png)
 
 ## What This Pipeline Does
