@@ -1,34 +1,27 @@
 # Product Showcase: Customer Complaint Classification
 
-This document is a practical walkthrough of the product in action.
+This is a practical, reviewer-friendly showcase of the product in action.
 
-## Product Snapshot
+## What The Product Does
 
-This application converts unstructured customer complaints into structured triage outputs for support teams.
+It converts customer complaint signals (audio or text) into triage-ready outputs:
 
-It takes audio or text complaint signals and automatically produces:
+- Transcription
+- Defect-focused image prompt
+- Generated defect image
+- Structured defect localization (JSON)
+- Annotated image with bounding boxes
+- Category, subcategory, severity, confidence, rationale
 
-- Complaint transcription
-- Defect-focused generation prompt
-- Generated complaint image
-- Defect localization and annotation
-- Category, subcategory, and severity classification
+All artifacts are saved in one complaint-specific output folder.
 
-All artifacts are saved in one complaint folder so support and QA can review the full decision trail quickly.
-
-## Who This Is For
-
-- Support operations teams triaging high complaint volume
-- QA and product teams tracking defect signals
-- Technical reviewers validating the end-to-end AI workflow
-
-## What Is Used
+## Stack
 
 - Python 3.13
 - OpenAI Python SDK with Azure OpenAI deployments
-- Speech transcription model: gpt-4o-transcribe
-- Language and multimodal analysis model: gpt-5-mini
-- Image generation model: gpt-image-2
+- Speech transcription: gpt-4o-transcribe
+- Vision and reasoning: gpt-5-mini
+- Image generation: gpt-image-2
 - Pillow for annotation rendering
 - Async orchestration with asyncio
 
@@ -36,69 +29,103 @@ All artifacts are saved in one complaint folder so support and QA can review the
 
 ![Pipeline overview](docs/project-overview.png)
 
-## Live Demonstration: One Complaint, Full Trace
-
-### Step 1. Run the pipeline
-
-Audio complaint example:
-
-    uv run project/main.py --audio project/audio/apple\ watch\ defect.mp3 --step-timeout 150
-
-Text-file complaint example:
-
-    uv run project/main.py --text-file project/textual_complaints/complaint1.txt --step-timeout 150
-
-### Step 2. Console progress and timing
-
-The run tracker shows each stage start/end, timings, and produced files.
+## Live Console Snapshot
 
 ![Run example](docs/run%20exemple.png)
 
-### Step 3. Input and context extraction
+## Case Study 1: Headset Defect (Primary Example)
 
-Input signal is converted to complaint text and used to build a defect-specific visual prompt.
+Complaint signal summary:
 
-Transcription evidence:
-See [project/output/apple-watch-defect/transcription.txt](project/output/apple-watch-defect/transcription.txt)
+> Left headphone side not working, visible cut wire near the left ear cup hinge.
 
-Prompt evidence:
-See [project/output/apple-watch-defect/prompt.txt](project/output/apple-watch-defect/prompt.txt)
+Transcription:
 
-### Step 4. Visual reconstruction of the complaint
+[project/output/headphone-complaints/transcription.txt](project/output/headphone-complaints/transcription.txt)
 
-The image model generates a realistic product-defect scene from complaint context.
+Generated image:
 
-![Generated image](project/output/apple-watch-defect/generated_image.png)
+![Headset generated](project/output/headphone-complaints/generated_image.png)
 
-### Step 5. Defect localization and annotation
+Annotated image:
 
-The vision stage returns structured defect JSON with normalized bounding boxes and confidence.
+![Headset annotated](project/output/headphone-complaints/annotated_image.png)
 
-JSON evidence:
-See [project/output/apple-watch-defect/image_analysis.json](project/output/apple-watch-defect/image_analysis.json)
+Classification output:
 
-Annotated output:
+[project/output/headphone-complaints/classification.json](project/output/headphone-complaints/classification.json)
 
-![Annotated image](project/output/apple-watch-defect/annotated_image.png)
+Result:
 
-### Step 6. Triage-ready complaint classification
+- Category: Repair
+- Subcategory: Damaged Product
+- Severity: high
 
-The final decision includes category, subcategory, severity, confidence, and rationale.
+---
 
-Classification evidence:
-See [project/output/apple-watch-defect/classification.json](project/output/apple-watch-defect/classification.json)
+## Case Study 2: Computer (Laptop) Defect
 
-## What Reviewers Should Verify Quickly
+Complaint signal summary:
 
-1. The complaint text and generated prompt are consistent with the issue.
-2. The generated image reflects the reported defect context.
-3. Bounding boxes in annotation match the defects described in JSON.
-4. Final category and severity are coherent with transcript + image analysis.
-5. All expected artifacts exist in one folder for each complaint.
+> New laptop screen became black with a large white spot at the bottom-left area.
 
-## Output Package Per Complaint
+Transcription:
 
-Each complaint has a complete artifact set under a dedicated folder in project/output.
+[project/output/laptop-complaint/transcription.txt](project/output/laptop-complaint/transcription.txt)
+
+Generated image:
+
+![Laptop generated](project/output/laptop-complaint/generated_image.png)
+
+Annotated image:
+
+![Laptop annotated](project/output/laptop-complaint/annotated_image.png)
+
+Classification output:
+
+[project/output/laptop-complaint/classification.json](project/output/laptop-complaint/classification.json)
+
+Result:
+
+- Category: Repair
+- Subcategory: Functional Failure
+- Severity: high
+
+---
+
+## Case Study 3: Apple Watch Defect
+
+Complaint signal summary:
+
+> Promised straps missing and screen scratches visible after unboxing.
+
+Transcription:
+
+[project/output/apple-watch-defect/transcription.txt](project/output/apple-watch-defect/transcription.txt)
+
+Generated image:
+
+![Watch generated](project/output/apple-watch-defect/generated_image.png)
+
+Annotated image:
+
+![Watch annotated](project/output/apple-watch-defect/annotated_image.png)
+
+Classification output:
+
+[project/output/apple-watch-defect/classification.json](project/output/apple-watch-defect/classification.json)
+
+Result:
+
+- Category: Repair
+- Subcategory: Missing Parts
+- Severity: high
+
+---
+
+## Output Contract (Per Complaint Folder)
+
+Each complaint folder under `project/output/<complaint-id>/` contains:
 
 - transcription.txt
 - prompt.txt
@@ -108,13 +135,14 @@ Each complaint has a complete artifact set under a dedicated folder in project/o
 - annotated_image.png
 - classification.json
 - classification.txt
-- Original input audio file for audio-driven runs
+- Original input audio file (for audio-driven runs)
 
-Run-level summary is saved in [project/output/run_summary.json](project/output/run_summary.json).
+Run-level summary is stored in [project/output/run_summary.json](project/output/run_summary.json).
 
-## Why This Matters Operationally
+## Quick Reviewer Checklist
 
-- Faster first-response triage for support teams
-- Consistent defect interpretation across complaints
-- Strong traceability for quality reviews and escalation
-- Easier handoff from raw customer signal to actionable category routing
+1. Confirm transcription aligns with complaint signal.
+2. Confirm generated image reflects reported defect context.
+3. Confirm annotated boxes align with `image_analysis.json` defects.
+4. Confirm classification and severity are coherent with complaint + vision output.
+5. Confirm all artifacts are present in each complaint folder.
